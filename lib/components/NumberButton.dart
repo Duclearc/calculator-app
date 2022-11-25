@@ -22,10 +22,12 @@ class _NumberButtonState extends State<NumberButton> {
   @override
   Widget build(BuildContext context) {
     Color thisColor = widget.accentedOperatorColor(widget.char);
-    return ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(backgroundColor: thisColor),
-        child: Text(widget.char, style: buttonTextStyle));
+    return Padding(
+        padding: const EdgeInsets.all(5),
+        child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(backgroundColor: thisColor),
+            child: Text(widget.char, style: buttonTextStyle)));
   }
 
   void onPressed() {

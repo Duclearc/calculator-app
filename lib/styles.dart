@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 const onPrimary = Colors.black54;
+const onPrimaryLighter = Colors.black38;
 const primary = Colors.greenAccent;
 const primaryContainer = Colors.green;
 const onSecondary = Colors.white70;
 const secondary = Colors.lightBlueAccent;
 const secondaryContainer = Colors.lightBlue;
 const error = Colors.red;
+const errorContainer = Colors.redAccent;
 const onError = Colors.white;
 const brightness = Brightness.light;
 const background = Colors.yellow;
@@ -22,6 +24,7 @@ ColorScheme calcColorScheme = const ColorScheme(
     secondary: secondary,
     secondaryContainer: secondaryContainer,
     error: error,
+    errorContainer: errorContainer,
     onError: onError,
     brightness: brightness,
     background: background,
@@ -35,6 +38,13 @@ TextStyle resultTextStyle = const TextStyle(
     fontStyle: FontStyle.italic,
     fontFamily: 'Open Sans',
     fontSize: 40);
+
+TextStyle historyTextStyle = const TextStyle(
+    color: onPrimaryLighter,
+    fontWeight: FontWeight.w900,
+    fontStyle: FontStyle.italic,
+    fontFamily: 'Open Sans',
+    fontSize: 30);
 
 TextStyle buttonTextStyle = const TextStyle(
     color: onPrimary,

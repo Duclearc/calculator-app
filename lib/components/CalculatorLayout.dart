@@ -1,7 +1,10 @@
+import 'package:calculator_app/components/ButtonRow.dart';
+import 'package:calculator_app/components/Display.dart';
 import 'package:calculator_app/styles.dart';
+import 'package:calculator_app/symbols.dart';
 import 'package:flutter/material.dart';
 
-import 'number-button.dart';
+import 'NumberButton.dart';
 
 class CalculatorLayout extends StatefulWidget {
   const CalculatorLayout({
@@ -13,10 +16,12 @@ class CalculatorLayout extends StatefulWidget {
 }
 
 class _CalculatorLayoutState extends State<CalculatorLayout> {
-  final List numbersRow1 = ['7', '8', '9', '÷'];
-  final List numbersRow2 = ['4', '5', '6', 'x'];
-  final List numbersRow3 = ['1', '2', '3', '-'];
-  final List numbersRow4 = ['0', '.', '=', '+'];
+  final List numbersRow0 = [delete, percentage, reset];
+  final List numbersRow1 = ['7', '8', '9', division];
+  final List numbersRow2 = ['4', '5', '6', multiplication];
+  final List numbersRow3 = ['1', '2', '3', subtraction];
+  final List numbersRow4 = ['0', comma, equals, addition];
+
   final isNumber = RegExp(r'^\d+\.?\d*$', dotAll: true);
 
   String lastPressedOperator = '';
@@ -25,7 +30,10 @@ class _CalculatorLayoutState extends State<CalculatorLayout> {
   List queue = [];
 
   Color accentedOperatorColor(String char) {
-    if (RegExp(r'[+\-÷x=]').hasMatch(char) && char == lastPressedOperator) {
+    if (numbersRow0.contains(char)) {
+      return Theme.of(context).colorScheme.errorContainer;
+    }
+    if (operators.contains(char) && char == lastPressedOperator) {
       //  set this color to accented
       return Theme.of(context).colorScheme.secondary;
     }
@@ -33,32 +41,46 @@ class _CalculatorLayoutState extends State<CalculatorLayout> {
     return Theme.of(context).colorScheme.primary;
   }
 
-  updateDisplay(data) {
+  updateDisplay(char) {
     setState(() {
-      if (RegExp(r'[+\-÷x=]').hasMatch(data)) {
-        lastPressedOperator = data;
+      if (numbersRow0.contains(char)) {
+        display = display.substring(0, display.length - 1);
+      }
+      if (lastPressedOperator == '=') {
+        history = '';
+        queue = [];
+      }
+      if (RegExp(r'[+\-÷x=]').hasMatch(char)) {
+        // if operator is pressed, save it as lastPressedOperator
+        lastPressedOperator = char;
         if (display.isNotEmpty) {
+          // add display contents to queue
           queue.add(num.parse(display));
+          String lastPressedNumber = queue.last.toString();
+          if (queue.isNotEmpty && lastPressedNumber == display) {
+            // start a new number
+            history += '$lastPressedNumber $lastPressedOperator ';
+            if (char != '=') {
+              display = '';
+            }
+          }
         }
-        if (data == '+') {
+        if (char == '+') {
           // add
-        } else if (data == '-') {
+        } else if (char == '-') {
           // subtract
-        } else if (data == 'x') {
+        } else if (char == 'x') {
           // multiply
-        } else if (data == '÷') {
+        } else if (char == '÷') {
           // divide
-        } else if (data == '=') {
+        } else if (char == '=') {
           // show result
         }
       }
-      if (queue.isNotEmpty && queue.last.toString() == display) {
-        // if an operator is pressed, start a new number
-        display = '';
-      }
-      if (isNumber.hasMatch(display + data)) {
+
+      if (isNumber.hasMatch(display + char)) {
         // if a number is pressed, show on main display
-        display += data;
+        display += char;
         return;
       }
       return;
@@ -67,51 +89,30 @@ class _CalculatorLayoutState extends State<CalculatorLayout> {
 
   @override
   Widget build(BuildContext context) {
+    List allRows = [
+      numbersRow0,
+      numbersRow1,
+      numbersRow2,
+      numbersRow3,
+      numbersRow4
+    ];
+    List displayContent = [
+      history,
+      display
+    ]; // main display must ALWAYS come last!
     return Column(
       children: [
         Text('LO: $lastPressedOperator'),
         Text('Q: $queue'),
-        Text('H: $history'),
-        Text(
-          display,
-          style: resultTextStyle,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: numbersRow1
-              .map((char) => NumberButton(
-                  char: char,
-                  callback: updateDisplay,
-                  accentedOperatorColor: accentedOperatorColor))
-              .toList(),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: numbersRow2
-              .map((char) => NumberButton(
-                  char: char,
-                  callback: updateDisplay,
-                  accentedOperatorColor: accentedOperatorColor))
-              .toList(),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: numbersRow3
-              .map((char) => NumberButton(
-                  char: char,
-                  callback: updateDisplay,
-                  accentedOperatorColor: accentedOperatorColor))
-              .toList(),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: numbersRow4
-              .map((char) => NumberButton(
-                  char: char,
-                  callback: updateDisplay,
-                  accentedOperatorColor: accentedOperatorColor))
-              .toList(),
-        ),
+        ...displayContent.map((e) => Display(
+              displayContent: e,
+              textStyle:
+                  e == displayContent.last ? resultTextStyle : historyTextStyle,
+            )),
+        ...allRows.map((row) => ButtonRow(
+            symbolsRow: row,
+            callback: updateDisplay,
+            accentedOperatorColor: accentedOperatorColor))
       ],
     );
   }
